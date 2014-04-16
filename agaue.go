@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/codegangsta/cli"
 	"github.com/agaue/agaue/lib"
+	"github.com/codegangsta/cli"
 )
 
 func main() {
@@ -32,7 +32,7 @@ func main() {
 			ShortName: "init",
 			Usage:     "init a blog",
 			Action: func(c *cli.Context) {
-				os.Mkdir("test", os.ModePerm)
+				lib.CreateBlog("blog")
 			},
 		},
 		{
@@ -40,7 +40,7 @@ func main() {
 			ShortName: "g",
 			Usage:     "generate html from markdown",
 			Action: func(c *cli.Context) {
-				lib.
+				println("generating...")
 			},
 		},
 	}

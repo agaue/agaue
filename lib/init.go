@@ -4,22 +4,18 @@ import (
 	"fmt"
 	"os"
 	path "path/filepath"
-	"strings"
 )
 
 func CreateBlog(blogName string) {
 	currentPath, _ := os.Getwd()
+	fmt.Println(currentPath)
 	if blogName == "" {
 		// ColorLog("[ERROR] Argument [blogname] is missing\n")
 		os.Exit(2)
 	}
 
-	gopath := os.Getenv("GOPATH")
-	if gopath == "" {
-		os.Exit(2)
-	}
-
 	blogpath := path.Join(currentPath, blogName)
+	fmt.Println(blogpath)
 
 	fmt.Println("[INFO] Creating Blog...")
 
@@ -27,7 +23,7 @@ func CreateBlog(blogName string) {
 	fmt.Println(blogpath + string(path.Separator))
 	os.Mkdir(path.Join(blogpath, "public"), 0775)
 	fmt.Println(path.Join(blogpath, "public") + string(path.Separator))
-	writeFiles(path.Join(blogpath, "public", "hello-world.md"), strings.Replace(hello, "{{.Appname}}", strings.Join(strings.Split(blogpath[len(blogsrcpath)+1:], string(path.Separator)), "/"), -1))
+	writeFiles(path.Join(blogpath, "public", "hello-world.md"), hello)
 	fmt.Println(path.Join(blogpath, "public", "hello-world.md"))
 }
 
