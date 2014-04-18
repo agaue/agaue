@@ -32,7 +32,7 @@ func main() {
 			ShortName: "init",
 			Usage:     "init a blog",
 			Action: func(c *cli.Context) {
-				lib.CreateBlog("blog")
+				lib.CreateBlog(c.Args()[0])
 			},
 		},
 		{
@@ -40,7 +40,7 @@ func main() {
 			ShortName: "g",
 			Usage:     "generate html from markdown",
 			Action: func(c *cli.Context) {
-				println("generating...")
+				lib.GenerateBlog()
 			},
 		},
 	}
