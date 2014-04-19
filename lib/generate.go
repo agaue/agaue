@@ -3,14 +3,16 @@ package lib
 import (
 	"fmt"
 	"github.com/russross/blackfriday"
-	"html/template"
+	// "html/template"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
 )
 
 const (
-	postPath = "/Users/AriesDevil/Desktop/test/post"
+	postPath     = "/Users/AriesDevil/Desktop/test/post"
+	templatePath = "/Users/AriesDevil/Desktop/test/template"
+	publicPath   = "/Users/AriesDevil/Desktop/test/public"
 )
 
 type Page struct {
@@ -86,6 +88,7 @@ func readFile(fileName string) {
 	page.Content = markdownRender([]byte(strings.Join(lines, "\n")))
 	fmt.Println(page)
 	fmt.Println(page.Content)
+	page.writeIndex(strings.TrimSuffix(strings.TrimPrefix(fileName, postPath+"/"), ".md"))
 }
 
 func markdownRender(content []byte) string {
