@@ -106,5 +106,5 @@ func markdownRender(content []byte) string {
 	extensions |= blackfriday.EXTENSION_STRIKETHROUGH
 	extensions |= blackfriday.EXTENSION_SPACE_HEADERS
 
-	return string(blackfriday.Markdown(content, renderer, extensions))
+	return string(blackfriday.Markdown(content, renderer, extensions)) //TODO: fix this bug
 }
