@@ -85,10 +85,15 @@ func readFile(fileName string) {
 		}
 
 	}
+	fmt.Println(strings.Join(lines, "\n"))
 	page.Content = markdownRender([]byte(strings.Join(lines, "\n")))
 	fmt.Println(page)
 	fmt.Println(page.Content)
 	page.writeIndex(strings.TrimSuffix(strings.TrimPrefix(fileName, postPath+"/"), ".md"))
+}
+
+func (p Page) Tags() []string {
+	return strings.Split(p.tags, ",")
 }
 
 func markdownRender(content []byte) string {
