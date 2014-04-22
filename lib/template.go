@@ -7,11 +7,11 @@ import (
 )
 
 var (
-	indexTemplate *template.Template
+	pageTemplate *template.Template
 )
 
 func loadTemplates() {
-	indexTemplate = template.Must(template.ParseFiles("template/index.html", "template/base.html"))
+	pageTemplate = template.Must(template.ParseFiles("template/page.html", "template/base.html"))
 }
 
 //whether a function or a method of Page?
@@ -25,7 +25,7 @@ func (page *Page) writeIndex(fileName string) {
 		fmt.Errorf("Error create post html : %v", err)
 	}
 
-	if err := indexTemplate.ExecuteTemplate(file, "base", page); err != nil {
+	if err := pageTemplate.ExecuteTemplate(file, "base", page); err != nil {
 		fmt.Errorf("Error render index file for post : %v", err)
 	}
 }

@@ -3,9 +3,10 @@ package lib
 import (
 	"fmt"
 	"github.com/russross/blackfriday"
-	// "html/template"
+	"html/template"
 	"io/ioutil"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -16,30 +17,39 @@ const (
 )
 
 type Page struct {
-	Title    string
-	Category string
-	tags     string
-	Date     string
-	Author   string
-	Content  string
+	Title     string
+	Url       string
+	Category  string
+	tags      string
+	Date      string
+	Author    string
+	content   string
+	NextTitle string
+	NextUrl   string
+	PrevTitle string
+	PrevUrl   string
 }
+
+type PageSlice []Page
 
 func GenerateBlog() {
 	fetchFileName(postPath)
 }
 
 func fetchFileName(postPath string) {
+	var pages PageSlice
 	fileGolb := postPath + "/*.md"
 	files, _ := filepath.Glob(fileGolb)
 
 	for _, file := range files {
 		fmt.Println("File: " + file)
-		readFile(file)
+		page := readFile(file)
+		pages = append(pages, page)
 	}
 }
 
-func readFile(fileName string) {
-	page := Page{Title: "", Category: "", tags: "", Date: "", Author: "", Content: ""}
+func readFile(fileName string) (page Page) {
+	page = Page{Title: "", Category: "", tags: "", Date: "", Author: "", content: ""}
 
 	data, err := ioutil.ReadFile(fileName)
 	if err != nil {
@@ -85,18 +95,21 @@ func readFile(fileName string) {
 		}
 
 	}
-	fmt.Println(strings.Join(lines, "\n"))
-	page.Content = markdownRender([]byte(strings.Join(lines, "\n")))
+	page.content = strings.Join(lines, "\n")
 	fmt.Println(page)
-	fmt.Println(page.Content)
-	page.writeIndex(strings.TrimSuffix(strings.TrimPrefix(fileName, postPath+"/"), ".md"))
+	fmt.Println(page.content)
+	tempFileName := strings.TrimSuffix(strings.TrimPrefix(fileName, postPath+"/"), ".md")
+	page.writeIndex(tempFileName)
+	page.Url = slug(tempFileName)
+	return page
 }
 
 func (p Page) Tags() []string {
 	return strings.Split(p.tags, ",")
 }
 
-func markdownRender(content []byte) string {
+//Called by template for safety
+func (p Page) Content() template.HTML {
 	htmlFlags := 0
 	htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
 	htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
@@ -111,5 +124,24 @@ func markdownRender(content []byte) string {
 	extensions |= blackfriday.EXTENSION_STRIKETHROUGH
 	extensions |= blackfriday.EXTENSION_SPACE_HEADERS
 
-	return string(blackfriday.Markdown(content, renderer, extensions)) //TODO: fix this bug
+	return template.HTML(blackfriday.Markdown([]byte(p.content), renderer, extensions))
+}
+
+func pageList(pages PageSlice) (list PageSlice) {
+	for _, page := range pages {
+		if page.Date.Format("2014") != "1970" {
+			list = append(list, page)
+		}
+	}
+	list.Sort()
+
+	//reverse
+	for i, j := 0, len(list)-1; i < j; i, j = i+1, j-1 {
+		list[i], list[j] = list[j], list[i]
+	}
+	return list
+}
+
+func (pages PageSlice) Sort() {
+	sort.Sort(pages)
 }
