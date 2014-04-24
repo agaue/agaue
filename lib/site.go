@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
@@ -33,25 +34,6 @@ func filter(file []os.FileInfo) []os.FileInfo {
 	}
 
 	return file
-}
-
-func loadTemplates() {
-	postTemplate = template.Must(template.ParseFiles("template/post.html", "template/base.html"))
-}
-
-func writeIndex(post *LongPost, fileName string) {
-	loadTemplates()
-
-	indexFile := fmt.Sprintf("%s/%s.html", publicPath, fileName)
-
-	file, err := os.Create(indexFile)
-	if err != nil {
-		fmt.Errorf("Error create post html : %v", err)
-	}
-
-	if err := pageTemplate.ExecuteTemplate(file, "base", post); err != nil {
-		fmt.Errorf("Error render index file for post : %v", err)
-	}
 }
 
 func clearPublishDir() error {
@@ -94,10 +76,72 @@ func getPosts(files []os.FileInfo) (allPosts []*LongPost, recentPosts []*LongPos
 	return
 }
 
+func loadTemplates() {
+	postTemplate = template.Must(template.ParseFiles("template/post.html", "template/base.html"))
+}
+
 func generateSite() error {
 	loadTemplates()
 	files, err := ioutil.ReadDir(PostsDir)
 	if err != nil {
-
+		return err
 	}
+
+	files = filter(files)
+
+	allPosts, recentPosts := getPosts(files)
+
+	if err := clearPublishDir(); err != nil {
+		return err
+	}
+
+	for i, p := range allPosts {
+		pt := newPostTempalte(p, i, recentPosts, allPosts)
+		if err := generateFile(pt, i == 0); err != nil {
+			return err
+		}
+	}
+
+	pt := newPostTempalte(nil, 0, recentPosts, allPosts)
+	return generateRss(pt)
+}
+
+func generateRss(pt *PostTempalte) error {
+	rss := NewRss(Config.SiteName, Config.Slogan, Config.BaseURL)
+	base, err := url.Parse(Config.BaseURL)
+	if err != nil {
+		return fmt.Errorf("Error parsing base URL: %s", err)
+	}
+
+	for _, p := range pt.Recent {
+		u, err := base.Parse(p.Slug)
+		if err != nil {
+			return fmt.Errorf("Error parsing post URL: %s", err)
+		}
+		rss.Channels[0].AppendItem(NewRssItem(p.Title, p.Description, u.String(), p.Author, "", p.PublishDate))
+	}
+
+	return rss.WriteToFile(filepath.Join(PublicDir, "rss"))
+}
+
+func generateFile(pt *PostTempalte, index bool) error {
+	var w io.Writer
+
+	fileWriter, err := os.Create(filepath.Join(PublicDir, pt.Post.Slug))
+	if err != nil {
+		return fmt.Errorf("Error creating static file %s: %s", pt.Post.Slug, err)
+	}
+	defer fileWriter.Close()
+
+	w = fileWriter
+	if index {
+		indexWriter, err := os.Create(filepath.Join(PublicDir, "index.html"))
+		if err != nil {
+			return fmt.Errorf("Error creating static file index.html: %s", err)
+		}
+		defer indexWriter.Close()
+		w = io.MultiWriter(fileWriter, indexWriter)
+	}
+
+	return pageTemplate.ExecuteTemplate(w, "base", pt)
 }

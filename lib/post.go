@@ -31,9 +31,10 @@ var (
 )
 
 type PostTempalte struct {
-	Post *LongPost
-	Prev *ShortPost
-	Next *ShortPost
+	Post   *LongPost
+	Recent []*LongPost
+	Prev   *ShortPost
+	Next   *ShortPost
 }
 
 type ShortPost struct {
@@ -52,9 +53,10 @@ type LongPost struct {
 	Content template.HTML
 }
 
-func newPostTempalte(p *LongPost, i int, r []*LongPost, all []*LongPost) *PostTempalte {
+func newPostTempalte(p *LongPost, i int, recent []*LongPost, all []*LongPost) *PostTempalte {
 	pt := &PostTempalte{
-		Post: p,
+		Post:   p,
+		Recent: recent,
 	}
 
 	if i > 0 {
