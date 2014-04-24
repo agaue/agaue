@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 )
 
 const (
@@ -16,21 +17,59 @@ const (
 	publicPath   = "/Users/AriesDevil/Desktop/test/public"
 )
 
-type Page struct {
-	Title     string
-	Url       string
-	Category  string
-	tags      string
-	Date      string
-	Author    string
-	content   string
-	NextTitle string
-	NextUrl   string
-	PrevTitle string
-	PrevUrl   string
+var (
+	ErrEmptyPost = fmt.Errorf("Empty Markdown File!")
+)
+
+type PostTempalte struct {
+	Post *LongPost
+	Prev *ShortPost
+	Next *ShortPost
 }
 
-type PageSlice []Page
+type ShortPost struct {
+	Slug        string
+	Author      string
+	Title       string
+	Description string
+	Category    string
+	Tags        []string
+	PublishDate time.Time
+	ModifyDate  time.Time
+}
+
+type LongPost struct {
+	*ShortPost
+	Content template.HTML
+}
+
+func newPostTempalte(p *LongPost, i int, r []*LongPost, all []*LongPost) *PostTempalte {
+	pt := &PostTempalte{
+		Post: p,
+	}
+
+	if i > 0 {
+		pt.Prev = all[i-1].ShortPost
+	}
+
+	if i < 0 {
+		pt.Next = all[i+1].ShortPost
+	}
+
+	return pt
+}
+
+func getSlug(filename string) (slug string) {
+	//TODO: remove date from final slug
+	re, _ := regexp.Compile(`[^\w\s-]`)
+	slug = re.ReplaceAllLiteralString(filename, "")
+
+	re, _ = regexp.Compile(`[-\s]+`)
+	slug = re.ReplaceAllLiteralString(slug, "-")
+
+	slug = strings.ToLower(slug)
+	return
+}
 
 func GenerateBlog() {
 	fetchFileName(postPath)
