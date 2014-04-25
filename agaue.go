@@ -1,10 +1,9 @@
 package main
 
 import (
-	"os"
-
 	"github.com/agaue/agaue/lib"
 	"github.com/codegangsta/cli"
+	"os"
 )
 
 func main() {
@@ -40,7 +39,7 @@ func main() {
 			ShortName: "g",
 			Usage:     "generate html from markdown",
 			Action: func(c *cli.Context) {
-				lib.GenerateBlog()
+				lib.GenerateSite()
 			},
 		},
 	}

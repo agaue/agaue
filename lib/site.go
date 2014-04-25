@@ -16,7 +16,26 @@ import (
 
 var (
 	postTemplate *template.Template
+	configFile   string
+	PublicDir    string
+	PostsDir     string
+	TemplatesDir string
+	RssURL       string
 )
+
+func init() {
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Fatal("FATAL", err)
+	}
+	PublicDir = filepath.Join(pwd, "public")
+	PostsDir = filepath.Join(pwd, "posts")
+	TemplatesDir = filepath.Join(pwd, "templates")
+}
+
+func storeRssURL() {
+  base, err := url.Parse(config.)
+}
 
 type posts []*LongPost
 
@@ -68,7 +87,7 @@ func getPosts(files []os.FileInfo) (allPosts []*LongPost, recentPosts []*LongPos
 	}
 
 	sort.Sort(sort.Reverse(posts(allPosts)))
-	recent := Config.RecentPostsCount //TODO : config
+	recent := GetConfig(config).RecentPostsCount //TODO : config
 	if length := len(all); length < recent {
 		recent = length
 	}
@@ -80,8 +99,9 @@ func loadTemplates() {
 	postTemplate = template.Must(template.ParseFiles("template/post.html", "template/base.html"))
 }
 
-func generateSite() error {
+func GenerateSite() error {
 	loadTemplates()
+	config := GetConfig(configFile)
 	files, err := ioutil.ReadDir(PostsDir)
 	if err != nil {
 		return err
@@ -107,7 +127,7 @@ func generateSite() error {
 }
 
 func generateRss(pt *PostTempalte) error {
-	rss := NewRss(Config.SiteName, Config.Slogan, Config.BaseURL)
+	rss := NewRss(config.SiteName, Config.Slogan, Config.BaseURL)
 	base, err := url.Parse(Config.BaseURL)
 	if err != nil {
 		return fmt.Errorf("Error parsing base URL: %s", err)
