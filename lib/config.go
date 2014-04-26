@@ -11,6 +11,7 @@ type Config struct {
 	Port             string
 	BaseURL          string
 	RecentPostsCount int
+	Slogan           string
 }
 
 func GetConfig(configFile string) Config {
