@@ -15,6 +15,7 @@ func loadTemplates() {
 }
 
 //whether a function or a method of Page?
+//unused
 func (page *Page) writeIndex(fileName string) {
 	loadTemplates()
 

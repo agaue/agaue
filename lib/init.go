@@ -48,7 +48,7 @@ func CreateBlog(blogName string) {
 var hello = `
 title: Hello World
 
-##Welcome to Agaue blog engine! Hello World!
+##Welcome to Agaue static blog engine! Hello World!
 `
 
 func writeFiles(filename, content string) {
