@@ -32,7 +32,7 @@ type Item struct {
 	Title       string   `xml:"title"`
 	Link        string   `xml:"link"`
 	Description string   `xml:"description"`
-	Authro      string   `xml:"author"`
+	Author      string   `xml:"author"`
 	Category    string   `xml:"category"`
 	PublishDate string   `xml:"publishDate"`
 	Image       []*Image `xml:"image"`

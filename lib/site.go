@@ -11,16 +11,23 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"time"
 )
 
 var (
 	postTemplate *template.Template
-	configFile   string
+	config       Config
+	ConfigFile   string
 	PublicDir    string
 	PostsDir     string
 	TemplatesDir string
 	RssURL       string
+
+	specFiles = map[string]struct{}{
+		"favicon.ico":          struct{}{},
+		"robots.txt":           struct{}{},
+		"humans.txt":           struct{}{},
+		"apple-touch-icon.png": struct{}{},
+	}
 )
 
 func init() {
@@ -29,19 +36,30 @@ func init() {
 		log.Fatal("FATAL", err)
 	}
 	PublicDir = filepath.Join(pwd, "public")
-	PostsDir = filepath.Join(pwd, "posts")
-	TemplatesDir = filepath.Join(pwd, "templates")
+	PostsDir = filepath.Join(pwd, "post")
+	TemplatesDir = filepath.Join(pwd, "template")
+	ConfigFile = filepath.Join(pwd, "config.json")
+	config = GetConfig(ConfigFile)
 }
 
 func storeRssURL() {
-  base, err := url.Parse(config.)
+	base, err := url.Parse(config.BaseURL)
+	if err != nil {
+		fmt.Errorf("Error parsing the baseurl: %s", err)
+	}
+	rss, err := base.Parse("/rss")
+	if err != nil {
+		fmt.Errorf("Error parsing the rss url: %s", err)
+	}
+
+	RssURL = rss.String()
 }
 
 type posts []*LongPost
 
-func (p *posts) Len() int           { return len(p) }
-func (p *posts) Less(i, j int) bool { return p[i].PublishDate.Before(p[j].PublishDate) }
-func (p *posts) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p posts) Len() int           { return len(p) }
+func (p posts) Less(i, j int) bool { return p[i].PublishDate.Before(p[j].PublishDate) }
+func (p posts) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
 func filter(file []os.FileInfo) []os.FileInfo {
 	for i := 0; i < len(file); {
@@ -87,11 +105,11 @@ func getPosts(files []os.FileInfo) (allPosts []*LongPost, recentPosts []*LongPos
 	}
 
 	sort.Sort(sort.Reverse(posts(allPosts)))
-	recent := GetConfig(config).RecentPostsCount //TODO : config
-	if length := len(all); length < recent {
+	recent := config.RecentPostsCount
+	if length := len(allPosts); length < recent {
 		recent = length
 	}
-	recentPosts = all[:recent]
+	recentPosts = allPosts[:recent]
 	return
 }
 
@@ -100,8 +118,8 @@ func loadTemplates() {
 }
 
 func GenerateSite() error {
+	storeRssURL()
 	loadTemplates()
-	config := GetConfig(configFile)
 	files, err := ioutil.ReadDir(PostsDir)
 	if err != nil {
 		return err
@@ -128,7 +146,7 @@ func GenerateSite() error {
 
 func generateRss(pt *PostTempalte) error {
 	rss := NewRss(config.SiteName, config.Slogan, config.BaseURL)
-	base, err := url.Parse(Config.BaseURL)
+	base, err := url.Parse(config.BaseURL)
 	if err != nil {
 		return fmt.Errorf("Error parsing base URL: %s", err)
 	}
@@ -163,5 +181,5 @@ func generateFile(pt *PostTempalte, index bool) error {
 		w = io.MultiWriter(fileWriter, indexWriter)
 	}
 
-	return pageTemplate.ExecuteTemplate(w, "base", pt)
+	return postTemplate.ExecuteTemplate(w, "base", pt)
 }

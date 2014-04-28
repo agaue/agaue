@@ -9,9 +9,9 @@ import (
 type Config struct {
 	SiteName         string
 	Port             string
-	BaseURL          string
 	RecentPostsCount int
 	Slogan           string
+	BaseURL          string
 }
 
 func GetConfig(configFile string) Config {

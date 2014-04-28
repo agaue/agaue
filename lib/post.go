@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 	"time"
 )
@@ -102,7 +101,7 @@ func readFrontMatter(s *bufio.Scanner) (map[string]string, error) {
 }
 
 func newLongPost(file os.FileInfo) (*LongPost, error) {
-	f, err := os.Open(filepath.Join(PostDir, file.Name()))
+	f, err := os.Open(filepath.Join(PostsDir, file.Name()))
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +122,7 @@ func newLongPost(file os.FileInfo) (*LongPost, error) {
 		}
 	}
 
-	tags := make([]string)
+	var tags []string
 	if tag, ok := m["tags"]; ok {
 		tags = getTags(tag)
 	}
