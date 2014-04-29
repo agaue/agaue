@@ -159,7 +159,7 @@ func generateRss(pt *PostTempalte) error {
 		rss.Channels[0].AppendItem(NewRssItem(p.Title, p.Description, u.String(), p.Author, "", p.PublishDate))
 	}
 
-	return rss.WriteToFile(filepath.Join(PublicDir, "rss"))
+	return rss.WriteToFile(filepath.Join(PublicDir, "rss.xml"))
 }
 
 func generateFile(pt *PostTempalte, index bool) error {
