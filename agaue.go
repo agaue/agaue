@@ -37,7 +37,7 @@ func main() {
 		{
 			Name:      "generate",
 			ShortName: "gen",
-			Usage:     "generate html from markdown",
+			Usage:     "generate blog",
 			Action: func(c *cli.Context) {
 				lib.GenerateSite()
 			},
