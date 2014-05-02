@@ -113,7 +113,8 @@ func newLongPost(file os.FileInfo) (*LongPost, error) {
 		return nil, err
 	}
 
-	slug := getSlug(file.Name())
+	slug := getSlug(strings.TrimSuffix(file.Name(), ".md"))
+	fmt.Println(file.Name())
 	pubDate := file.ModTime()
 	if date, ok := m["Date"]; ok && len(date) > 0 {
 		pubDate, err = time.Parse(dateFormatter[len(date)], date)
@@ -164,12 +165,13 @@ func getSlug(filename string) (slug string) {
 	re, _ = regexp.Compile(`[-\s]+`)
 	slug = re.ReplaceAllLiteralString(slug, "-")
 
-	slug = strings.ToLower(slug)
+	slug = strings.ToLower(slug) + ".html"
 	return
 }
 
 func getTags(tag string) []string {
-	return strings.Split(tag, ",")
+	t := strings.Replace(tag, " ", "", -1)
+	return strings.Split(t, ",")
 }
 
 func getMarkdownRender(content []byte) []byte {

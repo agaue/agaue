@@ -3,7 +3,6 @@ package lib
 import (
 	"fmt"
 	"html/template"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/url"
@@ -14,13 +13,14 @@ import (
 )
 
 var (
-	postTemplate *template.Template
-	config       Config
-	ConfigFile   string
-	PublicDir    string
-	PostsDir     string
-	TemplatesDir string
-	RssURL       string
+	postTemplate  *template.Template
+	indexTemplate *template.Template
+	config        Config
+	ConfigFile    string
+	PublicDir     string
+	PostsDir      string
+	TemplatesDir  string
+	RssURL        string
 
 	specFiles = map[string]struct{}{
 		"favicon.ico":          struct{}{},
@@ -115,6 +115,7 @@ func getPosts(files []os.FileInfo) (allPosts []*LongPost, recentPosts []*LongPos
 
 func loadTemplates() {
 	postTemplate = template.Must(template.ParseFiles("template/post.html", "template/base.html"))
+	indexTemplate = template.Must(template.ParseFiles("template/index.html"))
 }
 
 func GenerateSite() error {
@@ -135,7 +136,12 @@ func GenerateSite() error {
 
 	for i, p := range allPosts {
 		pt := newPostTempalte(p, i, recentPosts, allPosts)
-		if err := generateFile(pt, i == 0); err != nil {
+		if i == 0 {
+			if err := generateIndexFile(pt); err != nil {
+				return err
+			}
+		}
+		if err := generatePostFile(pt); err != nil {
 			return err
 		}
 	}
@@ -162,8 +168,7 @@ func generateRss(pt *PostTempalte) error {
 	return rss.WriteToFile(filepath.Join(PublicDir, "rss.xml"))
 }
 
-func generateFile(pt *PostTempalte, index bool) error {
-	var w io.Writer
+func generatePostFile(pt *PostTempalte) error {
 
 	fileWriter, err := os.Create(filepath.Join(PublicDir, pt.Post.Slug))
 	if err != nil {
@@ -171,15 +176,16 @@ func generateFile(pt *PostTempalte, index bool) error {
 	}
 	defer fileWriter.Close()
 
-	w = fileWriter
-	if index {
-		indexWriter, err := os.Create(filepath.Join(PublicDir, "index.html"))
-		if err != nil {
-			return fmt.Errorf("Error creating static file index.html: %s", err)
-		}
-		defer indexWriter.Close()
-		w = io.MultiWriter(fileWriter, indexWriter)
-	}
+	return postTemplate.ExecuteTemplate(fileWriter, "base", pt)
+}
 
-	return postTemplate.ExecuteTemplate(w, "base", pt)
+func generateIndexFile(pt *PostTempalte) error {
+
+	indexWriter, err := os.Create(filepath.Join(PublicDir, "index.html"))
+	if err != nil {
+		return fmt.Errorf("Error creating static file index.html: %s", err)
+	}
+	defer indexWriter.Close()
+
+	return indexTemplate.ExecuteTemplate(indexWriter, "index", pt)
 }
