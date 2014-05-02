@@ -76,7 +76,7 @@ func filter(file []os.FileInfo) []os.FileInfo {
 func clearPublishDir() error {
 	files, err := ioutil.ReadDir(PublicDir)
 	if err != nil {
-		return fmt.Errorf("Error while getting public directory files: %s", err)
+		return fmt.Errorf("Error getting public directory files: %s", err)
 	}
 
 	for _, file := range files {
