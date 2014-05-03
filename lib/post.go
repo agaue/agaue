@@ -170,7 +170,7 @@ func getSlug(filename string) (slug string) {
 }
 
 func getTags(tag string) []string {
-	t := strings.Replace(tag, " ", "", -1)
+	t := strings.Replace(tag, " ", "", -1) //Why Trim function doesn't work here?
 	return strings.Split(t, ",")
 }
 
