@@ -158,7 +158,7 @@ func newLongPost(file os.FileInfo) (*LongPost, error) {
 }
 
 func getSlug(filename string) (slug string) {
-	//TODO: remove date from final slug
+	//TODO: remove date from final slug ?
 	re, _ := regexp.Compile(`[^\w\s-]`)
 	slug = re.ReplaceAllLiteralString(filename, "")
 
@@ -170,7 +170,7 @@ func getSlug(filename string) (slug string) {
 }
 
 func getTags(tag string) []string {
-	t := strings.Replace(tag, " ", "", -1) //Why Trim function doesn't work here?
+	t := strings.Replace(tag, " ", "", -1) //Why Trim function doesn't work here ?
 	return strings.Split(t, ",")
 }
 

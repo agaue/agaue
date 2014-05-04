@@ -119,6 +119,7 @@ func loadTemplates() {
 }
 
 func GenerateSite() error {
+	//TODO: format date in the template
 	storeRssURL()
 	loadTemplates()
 	files, err := ioutil.ReadDir(PostsDir)
