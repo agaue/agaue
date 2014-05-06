@@ -38,7 +38,7 @@ type Item struct {
 	Image       []*Image `xml:"image"`
 }
 
-func NewRss(title string, description string, link string) *Rss {
+func NewRss(title string, description string, link string, author string) *Rss {
 	rss := &Rss{
 		Version: "2.0",
 		Channels: []*Channel{
@@ -46,7 +46,7 @@ func NewRss(title string, description string, link string) *Rss {
 				Title:       title,
 				Description: description,
 				Link:        link,
-				Generator:   "Damon Zhao", //TODO: need read from config
+				Generator:   author,
 				Image:       make([]*Image, 0),
 				Item:        make([]*Item, 0),
 			},

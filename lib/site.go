@@ -152,7 +152,7 @@ func GenerateSite() error {
 }
 
 func generateRss(pt *PostTempalte) error {
-	rss := NewRss(config.SiteName, config.Slogan, config.BaseURL)
+	rss := NewRss(config.SiteName, config.Slogan, config.BaseURL, config.Author)
 	base, err := url.Parse(config.BaseURL)
 	if err != nil {
 		return fmt.Errorf("Error parsing base URL: %s", err)
