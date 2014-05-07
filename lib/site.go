@@ -12,10 +12,12 @@ import (
 	"strings"
 )
 
+// Read rate: 400 str/s
+
 var (
 	postTemplate  *template.Template
 	indexTemplate *template.Template
-	config        Config
+	Config        Config
 	ConfigFile    string
 	PublicDir     string
 	PostsDir      string
@@ -39,11 +41,11 @@ func init() {
 	PostsDir = filepath.Join(pwd, "post")
 	TemplatesDir = filepath.Join(pwd, "template")
 	ConfigFile = filepath.Join(pwd, "config.json")
-	config = GetConfig(ConfigFile)
+	Config = GetConfig(ConfigFile)
 }
 
 func storeRssURL() {
-	base, err := url.Parse(config.BaseURL)
+	base, err := url.Parse(Config.BaseURL)
 	if err != nil {
 		fmt.Errorf("Error parsing the baseurl: %s", err)
 	}
@@ -105,7 +107,7 @@ func getPosts(files []os.FileInfo) (allPosts []*LongPost, recentPosts []*LongPos
 	}
 
 	sort.Sort(sort.Reverse(posts(allPosts)))
-	recent := config.RecentPostsCount
+	recent := Config.RecentPostsCount
 	if length := len(allPosts); length < recent {
 		recent = length
 	}
@@ -152,8 +154,8 @@ func GenerateSite() error {
 }
 
 func generateRss(pt *PostTempalte) error {
-	rss := NewRss(config.SiteName, config.Slogan, config.BaseURL, config.Author)
-	base, err := url.Parse(config.BaseURL)
+	rss := NewRss(Config.SiteName, Config.Slogan, Config.BaseURL, Config.Author)
+	base, err := url.Parse(Config.BaseURL)
 	if err != nil {
 		return fmt.Errorf("Error parsing base URL: %s", err)
 	}

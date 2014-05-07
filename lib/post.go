@@ -30,10 +30,12 @@ var (
 )
 
 type PostTempalte struct {
-	Post   *LongPost
-	Recent []*LongPost
-	Prev   *ShortPost
-	Next   *ShortPost
+	SiteName string
+	RssURL   string
+	Post     *LongPost
+	Recent   []*LongPost
+	Prev     *ShortPost
+	Next     *ShortPost
 }
 
 type ShortPost struct {
@@ -54,8 +56,9 @@ type LongPost struct {
 
 func newPostTempalte(p *LongPost, i int, recent []*LongPost, all []*LongPost) *PostTempalte {
 	pt := &PostTempalte{
-		Post:   p,
-		Recent: recent,
+		SiteName: Config.SiteName,
+		Post:     p,
+		Recent:   recent,
 	}
 
 	if i > 0 {
