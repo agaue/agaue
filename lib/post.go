@@ -51,12 +51,13 @@ type ShortPost struct {
 
 type LongPost struct {
 	*ShortPost
-	Content template.HTML
+	ReadingTime int
+	Content     template.HTML
 }
 
-func newPostTempalte(p *LongPost, i int, recent []*LongPost, all []*LongPost) *PostTempalte {
+func newPostTempalte(p *LongPost, i int, recent []*LongPost, all []*LongPost, config Config) *PostTempalte {
 	pt := &PostTempalte{
-		SiteName: Config.SiteName,
+		SiteName: config.SiteName,
 		Post:     p,
 		Recent:   recent,
 	}
@@ -65,7 +66,7 @@ func newPostTempalte(p *LongPost, i int, recent []*LongPost, all []*LongPost) *P
 		pt.Prev = all[i-1].ShortPost
 	}
 
-	if i < 0 {
+	if i < len(all)-1 {
 		pt.Next = all[i+1].ShortPost
 	}
 
@@ -150,11 +151,12 @@ func newLongPost(file os.FileInfo) (*LongPost, error) {
 	if err = s.Err(); err != nil {
 		return nil, err
 	}
-	res := getMarkdownRender(buf.Bytes())
+	markdown := getMarkdownRender(buf.Bytes())
 
 	longPost := &LongPost{
 		shortPost,
-		template.HTML(res),
+		getReadingTime(string(markdown)),
+		template.HTML(markdown),
 	}
 
 	return longPost, nil
@@ -175,6 +177,15 @@ func getSlug(filename string) (slug string) {
 func getTags(tag string) []string {
 	t := strings.Replace(tag, " ", "", -1) //Why Trim function doesn't work here ?
 	return strings.Split(t, ",")
+}
+
+func getReadingTime(content string) int {
+	readingTime := strings.Count(content, "") / 400
+	if readingTime < 1 {
+		readingTime = 1
+	}
+
+	return readingTime
 }
 
 func getMarkdownRender(content []byte) []byte {

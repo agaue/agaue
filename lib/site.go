@@ -12,12 +12,12 @@ import (
 	"strings"
 )
 
-// Read rate: 400 str/s
+// Read rate: 400 str/min
 
 var (
 	postTemplate  *template.Template
 	indexTemplate *template.Template
-	Config        Config
+	config        Config
 	ConfigFile    string
 	PublicDir     string
 	PostsDir      string
@@ -41,11 +41,11 @@ func init() {
 	PostsDir = filepath.Join(pwd, "post")
 	TemplatesDir = filepath.Join(pwd, "template")
 	ConfigFile = filepath.Join(pwd, "config.json")
-	Config = GetConfig(ConfigFile)
+	config = GetConfig(ConfigFile)
 }
 
 func storeRssURL() {
-	base, err := url.Parse(Config.BaseURL)
+	base, err := url.Parse(config.BaseURL)
 	if err != nil {
 		fmt.Errorf("Error parsing the baseurl: %s", err)
 	}
@@ -107,7 +107,7 @@ func getPosts(files []os.FileInfo) (allPosts []*LongPost, recentPosts []*LongPos
 	}
 
 	sort.Sort(sort.Reverse(posts(allPosts)))
-	recent := Config.RecentPostsCount
+	recent := config.RecentPostsCount
 	if length := len(allPosts); length < recent {
 		recent = length
 	}
@@ -138,7 +138,7 @@ func GenerateSite() error {
 	}
 
 	for i, p := range allPosts {
-		pt := newPostTempalte(p, i, recentPosts, allPosts)
+		pt := newPostTempalte(p, i, recentPosts, allPosts, config)
 		if i == 0 {
 			if err := generateIndexFile(pt); err != nil {
 				return err
@@ -147,15 +147,16 @@ func GenerateSite() error {
 		if err := generatePostFile(pt); err != nil {
 			return err
 		}
+		fmt.Println(i)
 	}
 
-	pt := newPostTempalte(nil, 0, recentPosts, allPosts)
+	pt := newPostTempalte(nil, 0, recentPosts, allPosts, config)
 	return generateRss(pt)
 }
 
 func generateRss(pt *PostTempalte) error {
-	rss := NewRss(Config.SiteName, Config.Slogan, Config.BaseURL, Config.Author)
-	base, err := url.Parse(Config.BaseURL)
+	rss := NewRss(config.SiteName, config.Slogan, config.BaseURL, config.Author)
+	base, err := url.Parse(config.BaseURL)
 	if err != nil {
 		return fmt.Errorf("Error parsing base URL: %s", err)
 	}
