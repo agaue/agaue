@@ -9,6 +9,7 @@ import (
 type Config struct {
 	SiteName         string
 	Author           string
+	Description      string
 	Port             string
 	RecentPostsCount int
 	Slogan           string
