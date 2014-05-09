@@ -16,6 +16,11 @@ type Config struct {
 	BaseURL          string
 }
 
+type Github struct {
+	Repository string
+	Branch     string
+}
+
 func GetConfig(configFile string) Config {
 	file, err := os.Open(configFile)
 	if err != nil {
