@@ -12,8 +12,6 @@ import (
 	"strings"
 )
 
-// Read rate: 400 str/min
-
 var (
 	postTemplate  *template.Template
 	indexTemplate *template.Template
