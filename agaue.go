@@ -42,6 +42,14 @@ func main() {
 				lib.GenerateSite()
 			},
 		},
+		{
+			Name:      "deploy",
+			ShortName: "d",
+			Usage:     "deploy blog to github",
+			Action: func(c *cli.Context) {
+				//TODO
+			},
+		},
 	}
 
 	app.Run(os.Args)
