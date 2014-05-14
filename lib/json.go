@@ -1,11 +1,11 @@
 package lib
 
 import (
-	// "encoding/json"
+	"encoding/json"
 	"os"
 )
 
-type Json struct {
+type Site struct {
 	SiteName string      `json:"siteName"`
 	Posts    []*PostJson `json:"posts"`
 }
@@ -24,11 +24,12 @@ type PostJson struct {
 	Content     string `json:"content"`
 }
 
-func NewJson(siteName string) *Json {
-	json := &Json{
+func NewSiteJson(siteName string) *Site {
+	site := &Site{
 		SiteName: siteName,
 		Posts:    make([]*PostJson, 0),
 	}
+	return site
 }
 
 func NewPostJson(
@@ -58,15 +59,16 @@ func NewPostJson(
 	}
 }
 
-func (json *Json) AppendPostJson(p *PostJson) {
-	json.Posts = append(json.Posts, p)
+func (site *Site) AppendPostJson(p *PostJson) {
+	site.Posts = append(site.Posts, p)
 }
 
-func (json *Json) WriteToFile(path string) error {
+func (site *Site) WriteToFile(path string) error {
 	file, err := os.Create(path)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-
+	encoding := json.NewEncoder(file)
+	return encoding.Encode(site)
 }

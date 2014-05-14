@@ -149,6 +149,11 @@ func GenerateSite() error {
 	}
 
 	pt := newPostTempalte(nil, 0, recentPosts, allPosts, config)
+
+	err = generateJson(allPosts)
+	if err != nil {
+		return err
+	}
 	return generateRss(pt)
 }
 
@@ -168,6 +173,23 @@ func generateRss(pt *PostTempalte) error {
 	}
 
 	return rss.WriteToFile(filepath.Join(PublicDir, "rss.xml"))
+}
+
+func generateJson(pt []*LongPost) error {
+	siteJson := NewSiteJson(config.SiteName)
+	base, err := url.Parse(config.BaseURL)
+	if err != nil {
+		return fmt.Errorf("Error parsing base URL: %s", err)
+	}
+
+	for _, p := range pt {
+		u, err := base.Parse(p.Slug)
+		if err != nil {
+			return fmt.Errorf("Error parsing post URL: %s", err)
+		}
+		siteJson.AppendPostJson(NewPostJson(u.String(), p.Author, p.Title, p.Description, p.Category, p.PublishDate.Format("2006-01-02"), p.ModifyDate.Format("2006-01-02"), p.ReadingTime, "TODO:prevSlug", "TODO:nextSlug", string(p.Content)))
+	}
+	return siteJson.WriteToFile(filepath.Join(PublicDir, "site.json"))
 }
 
 func generatePostFile(pt *PostTempalte) error {
