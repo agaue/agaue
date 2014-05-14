@@ -47,7 +47,7 @@ func main() {
 			ShortName: "d",
 			Usage:     "deploy blog to github",
 			Action: func(c *cli.Context) {
-				//TODO
+				lib.DeploySite()
 			},
 		},
 	}
