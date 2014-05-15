@@ -34,6 +34,7 @@ type PostTempalte struct {
 	RssURL   string
 	Post     *LongPost
 	Recent   []*LongPost
+	All      []*LongPost
 	Prev     *ShortPost
 	Next     *ShortPost
 }
@@ -47,6 +48,8 @@ type ShortPost struct {
 	Tags        []string
 	PublishDate time.Time
 	ModifyDate  time.Time
+	PrevSlug    string
+	NextSlug    string
 }
 
 type LongPost struct {
@@ -60,6 +63,7 @@ func newPostTempalte(p *LongPost, i int, recent []*LongPost, all []*LongPost, co
 		SiteName: config.SiteName,
 		Post:     p,
 		Recent:   recent,
+		All:      all,
 	}
 
 	if i > 0 {
@@ -141,6 +145,8 @@ func newLongPost(file os.FileInfo) (*LongPost, error) {
 		tags,
 		pubDate,
 		file.ModTime(),
+		"",
+		"",
 	}
 
 	//Read real post

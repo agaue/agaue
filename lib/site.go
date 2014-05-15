@@ -105,6 +105,14 @@ func getPosts(files []os.FileInfo) (allPosts []*LongPost, recentPosts []*LongPos
 	}
 
 	sort.Sort(sort.Reverse(posts(allPosts)))
+	for i, _ := range allPosts {
+		if i > 0 {
+			allPosts[i].PrevSlug = allPosts[i-1].Slug
+		}
+		if i < len(allPosts)-1 {
+			allPosts[i].NextSlug = allPosts[i+1].Slug
+		}
+	}
 	recent := config.RecentPostsCount
 	if length := len(allPosts); length < recent {
 		recent = length
@@ -150,7 +158,7 @@ func GenerateSite() error {
 
 	pt := newPostTempalte(nil, 0, recentPosts, allPosts, config)
 
-	err = generateJson(allPosts)
+	err = generateJson(pt)
 	if err != nil {
 		return err
 	}
@@ -175,19 +183,27 @@ func generateRss(pt *PostTempalte) error {
 	return rss.WriteToFile(filepath.Join(PublicDir, "rss.xml"))
 }
 
-func generateJson(pt []*LongPost) error {
+func generateJson(pt *PostTempalte) error {
 	siteJson := NewSiteJson(config.SiteName)
 	base, err := url.Parse(config.BaseURL)
 	if err != nil {
 		return fmt.Errorf("Error parsing base URL: %s", err)
 	}
 
-	for _, p := range pt {
-		u, err := base.Parse(p.Slug)
+	for _, p := range pt.All {
+		slug, err := base.Parse(p.Slug)
 		if err != nil {
 			return fmt.Errorf("Error parsing post URL: %s", err)
 		}
-		siteJson.AppendPostJson(NewPostJson(u.String(), p.Author, p.Title, p.Description, p.Category, p.PublishDate.Format("2006-01-02"), p.ModifyDate.Format("2006-01-02"), p.ReadingTime, "TODO:prevSlug", "TODO:nextSlug", string(p.Content)))
+		prevSlug, err := base.Parse(p.PrevSlug)
+		if err != nil {
+			return fmt.Errorf("Error parsing post URL: %s", err)
+		}
+		nextSlug, err := base.Parse(p.NextSlug)
+		if err != nil {
+			return fmt.Errorf("Error parsing post URL: %s", err)
+		}
+		siteJson.AppendPostJson(NewPostJson(slug.String(), p.Author, p.Title, p.Description, p.Category, p.PublishDate.Format("2006-01-02"), p.ModifyDate.Format("2006-01-02"), p.ReadingTime, prevSlug.String(), nextSlug.String(), string(p.Content)))
 	}
 	return siteJson.WriteToFile(filepath.Join(PublicDir, "site.json"))
 }
