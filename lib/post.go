@@ -123,8 +123,9 @@ func newLongPost(file os.FileInfo) (*LongPost, error) {
 
 	slug := getSlug(strings.TrimSuffix(file.Name(), ".md"))
 	fmt.Println(file.Name())
+	// fmt.Println(m["Date"])
 	pubDate := file.ModTime()
-	if date, ok := m["Date"]; ok && len(date) > 0 {
+	if date, ok := m["date"]; ok && len(date) > 0 {
 		pubDate, err = time.Parse(dateFormatter[len(date)], date)
 		if err != nil {
 			return nil, err

@@ -167,6 +167,7 @@ func GenerateSite() error {
 
 func generateRss(pt *PostTempalte) error {
 	rss := NewRss(config.SiteName, config.Slogan, config.BaseURL, config.Author)
+	fmt.Println(config.Author)
 	base, err := url.Parse(config.BaseURL)
 	if err != nil {
 		return fmt.Errorf("Error parsing base URL: %s", err)
@@ -177,7 +178,7 @@ func generateRss(pt *PostTempalte) error {
 		if err != nil {
 			return fmt.Errorf("Error parsing post URL: %s", err)
 		}
-		rss.Channels[0].AppendItem(NewRssItem(p.Title, p.Description, u.String(), p.Author, "", p.PublishDate))
+		rss.Channels[0].AppendItem(NewRssItem(p.Title, p.Description, u.String(), p.Author, "", p.PublishDate.Format("2006-01-02")))
 	}
 
 	return rss.WriteToFile(filepath.Join(PublicDir, "rss.xml"))

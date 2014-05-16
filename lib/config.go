@@ -14,6 +14,7 @@ type Config struct {
 	RecentPostsCount int
 	Slogan           string
 	BaseURL          string
+	*Github
 }
 
 type Github struct {

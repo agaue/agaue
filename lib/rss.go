@@ -56,14 +56,14 @@ func NewRss(title string, description string, link string, author string) *Rss {
 	return rss
 }
 
-func NewRssItem(title string, description string, link string, author string, category string, publishDate time.Time) *Item {
+func NewRssItem(title string, description string, link string, author string, category string, publishDate string) *Item {
 	return &Item{
 		Title:       title,
 		Link:        link,
 		Description: description,
 		Author:      author,
 		Category:    category,
-		PublishDate: publishDate.Format(time.RFC822),
+		PublishDate: publishDate,
 		Image:       make([]*Image, 0),
 	}
 }
