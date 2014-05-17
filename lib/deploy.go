@@ -29,7 +29,7 @@ func DeploySite() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(string(i))
-	fmt.Println(string(a))
-	fmt.Println(string(c))
+	// fmt.Println(string(i))
+	// fmt.Println(string(a))
+	// fmt.Println(string(c))
 }
