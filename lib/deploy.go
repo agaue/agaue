@@ -14,7 +14,7 @@ func DeploySite() {
 	}
 	fmt.Println(git)
 
-	gitInit := exec.Command("git", "init")
+	gitInit := exec.Command("git", "init") //TODO: should be fired at init blog, not generate
 	gitAdd := exec.Command("git", "add", "-A")
 	gitCommit := exec.Command("git", "commit", "-m", "Site Update")
 	i, err := gitInit.CombinedOutput()
