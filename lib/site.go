@@ -105,6 +105,9 @@ func getPosts(files []os.FileInfo) (allPosts []*LongPost, recentPosts []*LongPos
 	}
 
 	sort.Sort(sort.Reverse(posts(allPosts)))
+
+	getCollection(allPosts)
+
 	for i, _ := range allPosts {
 		if i > 0 {
 			allPosts[i].PrevSlug = allPosts[i-1].Slug
