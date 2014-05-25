@@ -2,7 +2,7 @@ package lib
 
 import (
 	"fmt"
-	. "github.com/se77en/go-linq"
+	. "github.com/ahmetalpbalkan/go-linq"
 )
 
 func getCollection(allPosts []*LongPost) {
