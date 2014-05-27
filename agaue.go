@@ -28,7 +28,7 @@ func main() {
 	app.Commands = []cli.Command{
 		{
 			Name:      "init",
-			ShortName: "init",
+			ShortName: "i",
 			Usage:     "init a blog",
 			Action: func(c *cli.Context) {
 				lib.CreateBlog(c.Args()[0])
@@ -36,7 +36,7 @@ func main() {
 		},
 		{
 			Name:      "generate",
-			ShortName: "gen",
+			ShortName: "g",
 			Usage:     "generate blog",
 			Action: func(c *cli.Context) {
 				lib.GenerateSite()
