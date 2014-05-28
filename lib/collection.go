@@ -6,10 +6,6 @@ import (
 )
 
 func getCollection(allPosts []*LongPost) {
-	// getCategory := func(in T) (T, error) {
-	// 	return in.(*LongPost).Category, nil
-	// }
-
 	res, err := From(allPosts).GroupBy(func(post T) T { return post.(*LongPost).Category }, func(post T) T { return post.(*LongPost).Slug })
 	if err != nil {
 		fmt.Errorf("Error", err)
