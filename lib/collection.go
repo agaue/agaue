@@ -7,7 +7,7 @@ import (
 
 type T interface{}
 
-func getCollection(allPosts []*LongPost) map[T]T {
+func getCollection(allPosts []*LongPost) map[T][]T {
 	res, err := From(allPosts).GroupBy(func(post T) T { return post.(*LongPost).Category }, func(post T) T { return post.(*LongPost).Slug })
 	if err != nil {
 		fmt.Errorf("Error", err)
