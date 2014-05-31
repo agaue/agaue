@@ -16,5 +16,6 @@ func getCollection(allPosts []*LongPost) map[string][]string {
 		for key, value := range res {
 			fmt.Println(key, value)
 		}
+		return res
 	}
 }
