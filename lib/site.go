@@ -13,14 +13,15 @@ import (
 )
 
 var (
-	postTemplate  *template.Template
-	indexTemplate *template.Template
-	config        Config
-	ConfigFile    string
-	PublicDir     string
-	PostsDir      string
-	TemplatesDir  string
-	RssURL        string
+	postTemplate       *template.Template
+	indexTemplate      *template.Template
+	collectionTemplate *template.Template
+	config             Config
+	ConfigFile         string
+	PublicDir          string
+	PostsDir           string
+	TemplatesDir       string
+	RssURL             string
 
 	specFiles = map[string]struct{}{
 		"favicon.ico":          struct{}{},
@@ -127,6 +128,7 @@ func getPosts(files []os.FileInfo) (allPosts []*LongPost, recentPosts []*LongPos
 func loadTemplates() {
 	postTemplate = template.Must(template.ParseFiles("template/post.html", "template/base.html"))
 	indexTemplate = template.Must(template.ParseFiles("template/index.html"))
+	collectionTemplate = template.Must(template.ParseFiles("template/index.html"))
 }
 
 func GenerateSite() error {
@@ -141,6 +143,7 @@ func GenerateSite() error {
 	files = filter(files)
 
 	allPosts, recentPosts := getPosts(files)
+	collections := getCollection(allPosts)
 
 	if err := clearPublishDir(); err != nil {
 		return err
@@ -232,4 +235,9 @@ func generateIndexFile(pt *PostTempalte) error {
 	defer indexWriter.Close()
 
 	return indexTemplate.ExecuteTemplate(indexWriter, "index", pt)
+}
+
+func generateCollectionFile(c map[string][]string) error {
+
+	collectionWriter, err := os.Create(filepath.Join(PublicDir, "collecion.html")) //TODO
 }

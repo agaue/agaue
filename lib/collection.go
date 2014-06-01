@@ -5,17 +5,19 @@ import (
 	. "github.com/ahmetalpbalkan/go-linq"
 )
 
-type T interface{}
+// type Collection struct {
+// 	Collections map[string][]string
+// }
 
 func getCollection(allPosts []*LongPost) map[string][]string {
-	res, err := From(allPosts).GroupBy(func(post T) T { return post.(*LongPost).Category }, func(post T) T { return post.(*LongPost).Slug })
+	collection, err := From(allPosts).GroupBy(func(post T) T { return post.(*LongPost).Category }, func(post T) T { return post.(*LongPost).Slug })
 	if err != nil {
 		fmt.Errorf("Error", err)
 	} else {
-		fmt.Println(res)
-		for key, value := range res {
+		fmt.Println(collection)
+		for key, value := range collection {
 			fmt.Println(key, value)
 		}
-		return res
+		return collection
 	}
 }
