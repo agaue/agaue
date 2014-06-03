@@ -239,7 +239,7 @@ func generateIndexFile(pt *PostTempalte) error {
 
 func generateCollectionFile(c map[string][]string) error {
 
-	collectionWriter, err := os.Create(filepath.Join(PublicDir, "collecion.html")) //TODO
+	collectionWriter, err := os.Create(filepath.Join(PublicDir, "collecion.html")) //TODO every category generate a html
 	if err != nil {
 		return fmt.Errorf("Error creating static file collection.html: %s", err)
 	}
