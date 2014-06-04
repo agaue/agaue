@@ -18,6 +18,6 @@ func getCollection(allPosts []*LongPost) map[string][]string {
 		for key, value := range collection {
 			fmt.Println(key, value)
 		}
-		return collection
+		return collection.(map[string][]string)
 	}
 }

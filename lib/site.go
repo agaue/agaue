@@ -15,6 +15,7 @@ import (
 var (
 	postTemplate       *template.Template
 	indexTemplate      *template.Template
+	categoryTemplate   *template.Template
 	collectionTemplate *template.Template
 	config             Config
 	ConfigFile         string
@@ -128,7 +129,8 @@ func getPosts(files []os.FileInfo) (allPosts []*LongPost, recentPosts []*LongPos
 func loadTemplates() {
 	postTemplate = template.Must(template.ParseFiles("template/post.html", "template/base.html"))
 	indexTemplate = template.Must(template.ParseFiles("template/index.html"))
-	collectionTemplate = template.Must(template.ParseFiles("template/index.html"))
+	categoryTemplate = template.Must(template.ParseFiles("template/category.html"))
+	collectionTemplate = template.Must(template.ParseFiles("template/collection.html"))
 }
 
 func GenerateSite() error {
@@ -160,6 +162,17 @@ func GenerateSite() error {
 			return err
 		}
 		fmt.Println(i)
+	}
+
+	err = generateCategoryFile(collections)
+	if err != nil {
+		return err
+	}
+
+	for key, value := range collections {
+    if err := generateCollectionFile(key, collections[key]) {
+     	return err
+     } 
 	}
 
 	pt := newPostTempalte(nil, 0, recentPosts, allPosts, config)
@@ -237,13 +250,23 @@ func generateIndexFile(pt *PostTempalte) error {
 	return indexTemplate.ExecuteTemplate(indexWriter, "index", pt)
 }
 
-func generateCollectionFile(c map[string][]string) error {
+func generateCategoryFile(c map[string][]string) error {
 
-	collectionWriter, err := os.Create(filepath.Join(PublicDir, "collecion.html")) //TODO every category generate a html
+	categoryWriter, err := os.Create(filepath.Join(PublicDir, "category.html")) //TODO every category generate a html
 	if err != nil {
-		return fmt.Errorf("Error creating static file collection.html: %s", err)
+		return fmt.Errorf("Error creating static file category.html: %s", err)
 	}
-	defer collectionWriter.Close()
+	defer categoryWriter.Close()
 
-	return collectionTemplate.ExecuteTemplate(collectionWriter, "collection", c)
+	return categoryTemplate.ExecuteTemplate(categoryWriter, "category", c)
+}
+
+func generateCollectionFile(c string, posts []*LongPost) error {
+  collectionWriter, err := os.Create(filepath.Join(PublicDir, "collection/", c, ".html"))
+  if err != nil {
+  	return fmt.Errorf("Error creating static file collection %s html: %s", c, err)
+  }
+  defer collectionWriter.Close()
+
+  return collectionTemplate.ExecuteTemplate(collectionWriter, "collection"+c, posts)
 }
