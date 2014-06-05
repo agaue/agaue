@@ -169,10 +169,12 @@ func GenerateSite() error {
 		return err
 	}
 
-	for key, value := range collections {
-    if err := generateCollectionFile(key, collections[key]) {
-     	return err
-     } 
+	for key, _ := range collections {
+		if err := generateCollectionFile(key, collections[key]); err != nil {
+			fmt.Println(err)
+			return err
+		}
+		fmt.Println(key, collections[key])
 	}
 
 	pt := newPostTempalte(nil, 0, recentPosts, allPosts, config)
@@ -250,7 +252,7 @@ func generateIndexFile(pt *PostTempalte) error {
 	return indexTemplate.ExecuteTemplate(indexWriter, "index", pt)
 }
 
-func generateCategoryFile(c map[string][]string) error {
+func generateCategoryFile(c map[string][]*LongPost) error {
 
 	categoryWriter, err := os.Create(filepath.Join(PublicDir, "category.html")) //TODO every category generate a html
 	if err != nil {
@@ -262,11 +264,13 @@ func generateCategoryFile(c map[string][]string) error {
 }
 
 func generateCollectionFile(c string, posts []*LongPost) error {
-  collectionWriter, err := os.Create(filepath.Join(PublicDir, "collection/", c, ".html"))
-  if err != nil {
-  	return fmt.Errorf("Error creating static file collection %s html: %s", c, err)
-  }
-  defer collectionWriter.Close()
+	collectionWriter, err := os.Create(filepath.Join(PublicDir, "collection"+c+".html"))
+	if err != nil {
+		return fmt.Errorf("Error creating static file collection %s html: %s", c, err)
+	}
+	defer collectionWriter.Close()
 
-  return collectionTemplate.ExecuteTemplate(collectionWriter, "collection"+c, posts)
+	fmt.Println(posts)
+
+	return collectionTemplate.ExecuteTemplate(collectionWriter, "collection", posts)
 }
