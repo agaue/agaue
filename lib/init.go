@@ -31,6 +31,8 @@ func CreateBlog(blogName string) {
 	fmt.Println(path.Join(blogpath, "test") + string(path.Separator))
 	os.Mkdir(path.Join(blogpath, "public"), 0775)
 	fmt.Println(path.Join(blogpath, "public") + string(path.Separator))
+	os.Mkdir(path.Join(blogpath+string(path.Separator)+"public", "collection"), 0775)
+	fmt.Println(path.Join(blogpath+string(path.Separator)+"public", "collection") + string(path.Separator))
 	os.Mkdir(path.Join(blogpath+string(path.Separator)+"public", "static"), 0775)
 	fmt.Println(path.Join(blogpath+string(path.Separator)+"public", "static") + string(path.Separator))
 	os.Mkdir(path.Join(blogpath+string(path.Separator)+"public"+string(path.Separator)+"static", "css"), 0775)

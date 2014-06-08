@@ -264,7 +264,7 @@ func generateCategoryFile(c map[string][]*LongPost) error {
 }
 
 func generateCollectionFile(c string, posts []*LongPost) error { //TODO: init reposity first
-	collectionWriter, err := os.Create(filepath.Join(PublicDir, "collection"+c+".html"))
+	collectionWriter, err := os.Create(filepath.Join(PublicDir, "collection", c+".html"))
 	if err != nil {
 		return fmt.Errorf("Error creating static file in collection %s html: %s", c, err)
 	}
