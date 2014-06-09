@@ -10,9 +10,11 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 )
 
 var (
+	baseTemplate       *template.Template
 	postTemplate       *template.Template
 	indexTemplate      *template.Template
 	categoryTemplate   *template.Template
@@ -29,6 +31,12 @@ var (
 		"robots.txt":           struct{}{},
 		"humans.txt":           struct{}{},
 		"apple-touch-icon.png": struct{}{},
+	}
+
+	funcs = template.FuncMap{
+		"formattime": func(t time.Time, f string) string {
+			return t.Format(f)
+		},
 	}
 )
 
@@ -127,7 +135,9 @@ func getPosts(files []os.FileInfo) (allPosts []*LongPost, recentPosts []*LongPos
 }
 
 func loadTemplates() {
-	postTemplate = template.Must(template.ParseFiles("template/post.html", "template/base.html"))
+	baseTemplate = template.Must(template.ParseFiles("template/base.html")).Funcs(funcs)
+	postTemplate = template.Must(baseTemplate.Clone())
+	postTemplate = template.Must(postTemplate.ParseFiles("template/post.html"))
 	indexTemplate = template.Must(template.ParseFiles("template/index.html"))
 	categoryTemplate = template.Must(template.ParseFiles("template/category.html"))
 	collectionTemplate = template.Must(template.ParseFiles("template/collection.html"))
