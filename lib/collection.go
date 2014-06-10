@@ -5,6 +5,7 @@ import (
 	. "github.com/ahmetalpbalkan/go-linq"
 )
 
+// TODO: remove go-linq
 func getCollection(allPosts []*LongPost) map[string][]*LongPost {
 	collection, err := From(allPosts).GroupBy(func(post T) T { return post.(*LongPost).Category }, func(post T) T { return post.(*LongPost) })
 	if err != nil {
