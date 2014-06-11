@@ -2,30 +2,25 @@ package lib
 
 import (
 	"fmt"
-	. "github.com/ahmetalpbalkan/go-linq"
 )
 
-// TODO: remove go-linq
 func getCollection(allPosts []*LongPost) map[string][]*LongPost {
-	collection, err := From(allPosts).GroupBy(func(post T) T { return post.(*LongPost).Category }, func(post T) T { return post.(*LongPost) })
+	collection, err := groupBy(allPosts, func(p *LongPost) string { return p.Category })
 	if err != nil {
 		fmt.Errorf("Error", err)
+		return nil
 	}
-	return coverMapType(collection)
+	return collection
 }
 
-func coverMapType(in map[T][]T) (out map[string][]*LongPost) {
-	out = make(map[string][]*LongPost, len(in))
-	for k, _ := range in {
-		if key, ok := k.(string); ok {
-			v := in[k]
-			out[key] = make([]*LongPost, 0, len(v))
-			for i := range v {
-				if value, ok := v[i].(*LongPost); ok {
-					out[key] = append(out[key], value)
-				}
-			}
-		}
+func groupBy(
+	posts []*LongPost,
+	keySelector func(c *LongPost) string,
+) (map[string][]*LongPost, error) {
+	var results = make(map[string][]*LongPost)
+	for _, post := range posts {
+		key := keySelector(post)
+		results[key] = append(results[key], post)
 	}
-	return
+	return results, nil
 }
