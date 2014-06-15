@@ -6,6 +6,8 @@ import (
 	path "path/filepath"
 )
 
+// TODO: finish the init template
+
 func CreateBlog(blogName string) {
 	currentPath, _ := os.Getwd()
 	fmt.Println(currentPath)
