@@ -19,7 +19,7 @@ func CreateBlog(blogName string) {
 	blogpath := path.Join(currentPath, blogName)
 	fmt.Println(blogpath)
 
-	fmt.Println("[INFO] Creating Blog...")
+	fmt.Println("[INFO] Welcome! Creating Blog...")
 
 	os.MkdirAll(blogpath, 0775)
 	fmt.Println(blogpath + string(path.Separator))
