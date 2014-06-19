@@ -32,7 +32,7 @@ func launchWatcher() *fsnotify.Watcher {
 	return w
 }
 
-// lazy
+// TODO: finish the comment
 func watch(w *fsnotify.Watcher) {
 	var delay <-chan time.Time
 	for {
