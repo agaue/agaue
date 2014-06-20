@@ -43,6 +43,14 @@ func main() {
 			},
 		},
 		{
+			Name:      "watch",
+			ShortName: "w",
+			Usage:     "watch blog change",
+			Action: func(c *cli.Context) {
+				lib.LaunchWatcher()
+			},
+		},
+		{
 			Name:      "deploy",
 			ShortName: "d",
 			Usage:     "deploy blog to github",

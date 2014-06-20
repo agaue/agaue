@@ -13,7 +13,7 @@ const (
 	eventDelay = 10 * time.Second
 )
 
-func launchWatcher() *fsnotify.Watcher {
+func LaunchWatcher() *fsnotify.Watcher {
 	w, err := fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatal("FATAL", err)
