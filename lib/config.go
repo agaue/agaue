@@ -10,7 +10,7 @@ type Config struct {
 	SiteName         string
 	Author           string
 	Description      string
-	Port             string
+	Port             int
 	RecentPostsCount int
 	Slogan           string
 	BaseURL          string
