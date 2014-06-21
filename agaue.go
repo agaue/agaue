@@ -43,11 +43,11 @@ func main() {
 			},
 		},
 		{
-			Name:      "watch",
-			ShortName: "w",
-			Usage:     "watch blog change",
+			Name:      "server",
+			ShortName: "s",
+			Usage:     "server blog and auto restart when files change",
 			Action: func(c *cli.Context) {
-				lib.LaunchWatcher()
+				lib.ServeBlog()
 			},
 		},
 		{
