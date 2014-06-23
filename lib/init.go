@@ -45,6 +45,7 @@ func CreateBlog(blogName string) {
 	fmt.Println(path.Join(blogpath+string(path.Separator)+"public"+string(path.Separator)+"static", "js") + string(path.Separator))
 	os.Mkdir(path.Join(blogpath+string(path.Separator)+"public"+string(path.Separator)+"static", "font"), 0775)
 	fmt.Println(path.Join(blogpath+string(path.Separator)+"public"+string(path.Separator)+"static", "font") + string(path.Separator))
+	// write files include templates and markdowns
 	writeFiles(path.Join(blogpath, "post", "hello-world.md"), hello)
 	fmt.Println(path.Join(blogpath, "post", "hello-world.md"))
 }
