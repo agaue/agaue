@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/agaue/agaue/lib"
 	"github.com/codegangsta/cli"
 	"os"
+	"time"
 )
 
 func main() {
@@ -39,7 +41,9 @@ func main() {
 			ShortName: "g",
 			Usage:     "generate blog",
 			Action: func(c *cli.Context) {
+				start := time.Now()
 				lib.GenerateSite()
+				fmt.Println("Completed, Spend : ", time.Since(start))
 			},
 		},
 		{

@@ -149,6 +149,7 @@ func newLongPost(file os.FileInfo) (*LongPost, error) {
 		"",
 		"",
 	}
+	fmt.Println(m["category"])
 
 	//Read real post
 	buf := bytes.NewBuffer(nil)
