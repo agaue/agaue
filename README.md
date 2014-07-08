@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/agaue/agaue.png?label=ready&title=Ready)](https://waffle.io/agaue/agaue)
 agaue
 =====
 
