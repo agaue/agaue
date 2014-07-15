@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/howeyc/fsnotify"
+	"gopkg.in/fsnotify.v0"
 )
 
 const (
@@ -18,15 +18,14 @@ func launchWatcher() *fsnotify.Watcher {
 	if err != nil {
 		log.Fatal("FATAL", err)
 	}
+	defer w.Close()
 	go watch(w)
 	// watch posts directory
-	if err = w.Watch(PostsDir); err != nil {
-		w.Close()
+	if err = w.Add(PostsDir); err != nil {
 		log.Fatal("FATAL", err)
 	}
 	// watch templates directory
-	if err = w.Watch(TemplatesDir); err != nil {
-		w.Close()
+	if err = w.Add(TemplatesDir); err != nil {
 		log.Fatal("FATAL", err)
 	}
 	return w
@@ -38,7 +37,7 @@ func watch(w *fsnotify.Watcher) {
 	for {
 		select {
 
-		case ev := <-w.Event:
+		case ev := <-w.Events:
 			ext := filepath.Ext(ev.Name)
 			if strings.HasPrefix(ev.Name, PostsDir) && ext == ".md" {
 				delay = time.After(eventDelay)
@@ -46,7 +45,7 @@ func watch(w *fsnotify.Watcher) {
 				delay = time.After(eventDelay)
 			}
 
-		case err := <-w.Error:
+		case err := <-w.Errors:
 			log.Println("Watch Error: ", err)
 
 		case <-delay:
