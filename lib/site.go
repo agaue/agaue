@@ -261,7 +261,7 @@ func generateIndexFile(pt *PostTempalte) error {
 
 func generateCategoryFile(c map[string][]*LongPost) error {
 
-	categoryWriter, err := os.Create(filepath.Join(PublicDir, "category.html")) //TODO every category generate a html
+	categoryWriter, err := os.Create(filepath.Join(PublicDir, "category.html")) //TODO: every category generate a html
 	if err != nil {
 		return fmt.Errorf("Error creating static file category.html: %s", err)
 	}

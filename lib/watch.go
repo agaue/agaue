@@ -18,14 +18,15 @@ func launchWatcher() *fsnotify.Watcher {
 	if err != nil {
 		log.Fatal("FATAL", err)
 	}
-	defer w.Close()
 	go watch(w)
 	// watch posts directory
 	if err = w.Add(PostsDir); err != nil {
+		w.Close()
 		log.Fatal("FATAL", err)
 	}
 	// watch templates directory
 	if err = w.Add(TemplatesDir); err != nil {
+		w.Close()
 		log.Fatal("FATAL", err)
 	}
 	return w
