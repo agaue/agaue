@@ -32,11 +32,11 @@ var (
 type PostTempalte struct {
 	SiteName string
 	RssURL   string
-	Post     *LongPost
-	Recent   []*LongPost
-	All      []*LongPost
-	Prev     *ShortPost
-	Next     *ShortPost
+	Post     LongPost
+	Recent   []LongPost
+	All      []LongPost
+	Prev     ShortPost
+	Next     ShortPost
 }
 
 type ShortPost struct {
@@ -53,12 +53,12 @@ type ShortPost struct {
 }
 
 type LongPost struct {
-	*ShortPost
+	ShortPost
 	ReadingTime int
 	Content     template.HTML
 }
 
-func newPostTempalte(p *LongPost, i int, recent []*LongPost, all []*LongPost, config Config) *PostTempalte {
+func newPostTempalte(p LongPost, i int, recent []LongPost, all []LongPost, config Config) *PostTempalte {
 	pt := &PostTempalte{
 		SiteName: config.SiteName,
 		Post:     p,
@@ -108,17 +108,17 @@ func readFrontMatter(s *bufio.Scanner) (map[string]string, error) {
 	return nil, ErrEmptyPost
 }
 
-func newLongPost(file os.FileInfo) (*LongPost, error) {
+func newLongPost(file os.FileInfo, postChan chan<- LongPost) {
 	f, err := os.Open(filepath.Join(PostsDir, file.Name()))
 	if err != nil {
-		return nil, err
+		return
 	}
 	defer f.Close()
 
 	s := bufio.NewScanner(f)
 	m, err := readFrontMatter(s)
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	slug := getSlug(strings.TrimSuffix(file.Name(), ".md"))
@@ -128,7 +128,7 @@ func newLongPost(file os.FileInfo) (*LongPost, error) {
 	if date, ok := m["date"]; ok && len(date) > 0 {
 		pubDate, err = time.Parse(dateFormatter[len(date)], date)
 		if err != nil {
-			return nil, err
+			return
 		}
 	}
 
@@ -137,7 +137,7 @@ func newLongPost(file os.FileInfo) (*LongPost, error) {
 		tags = getTags(tag)
 	}
 
-	shortPost := &ShortPost{
+	shortPost := ShortPost{
 		slug,
 		m["author"],
 		m["title"],
@@ -157,17 +157,17 @@ func newLongPost(file os.FileInfo) (*LongPost, error) {
 		buf.WriteString(s.Text() + "\n")
 	}
 	if err = s.Err(); err != nil {
-		return nil, err
+		return
 	}
 	markdown := getMarkdownRender(buf.Bytes())
 
-	longPost := &LongPost{
+	longPost := LongPost{
 		shortPost,
 		getReadingTime(string(markdown)),
 		template.HTML(markdown),
 	}
 
-	return longPost, nil
+	postChan <- longPost
 }
 
 func getSlug(filename string) (slug string) {

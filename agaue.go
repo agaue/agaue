@@ -5,10 +5,12 @@ import (
 	"github.com/agaue/agaue/lib"
 	"github.com/codegangsta/cli"
 	"os"
+	"runtime"
 	"time"
 )
 
 func main() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	app := cli.NewApp()
 	app.Name = "agaue"
 	app.Usage = "make a test"
