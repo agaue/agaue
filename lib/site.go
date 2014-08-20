@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
 	"time"
@@ -109,17 +110,17 @@ func getPosts(files []os.FileInfo) (allPosts []LongPost, recentPosts []LongPost)
 	fileCount := len(files)
 	allPosts = make([]LongPost, 0)
 	postChan := make(chan LongPost, fileCount)
-	// for _, file := range files {
-	// 	if runtime.NumGoroutine() > maxGoroutines {
-	// 		newLongPost(file, postChan)
-	// 	} else {
-	// 		go newLongPost(file, postChan)
-	// 	}
-	// }
-
 	for _, file := range files {
-		go newLongPost(file, postChan)
+		if runtime.NumGoroutine() > maxGoroutines {
+			newLongPost(file, postChan)
+		} else {
+			go newLongPost(file, postChan)
+		}
 	}
+
+	// for _, file := range files {
+	// 	go newLongPost(file, postChan)
+	// }
 
 	for i := 0; i < fileCount; i++ {
 		allPosts = append(allPosts, <-postChan)
