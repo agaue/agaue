@@ -14,12 +14,11 @@ import (
 )
 
 var (
-	ErrEmptyPost          = fmt.Errorf("Empty Markdown File!")
-	ErrInvalidFrontMatter = fmt.Errorf("Invalid Front Matter")
-	ErrMissingFrontMatter = fmt.Errorf("Missing Front Matter")
+	errEmptyPost          = fmt.Errorf("Empty Markdown File!")
+	errInvalidFrontMatter = fmt.Errorf("Invalid Front Matter")
+	errMissingFrontMatter = fmt.Errorf("Missing Front Matter")
 
 	dateFormatter = map[int]string{
-		//Anyone tell me what happen on 2006/01/02
 		10: "2006-01-02",
 		13: "2006-01-02 15h",
 		14: "2006-01-02 15h",
@@ -29,17 +28,17 @@ var (
 	}
 )
 
-type PostTempalte struct {
+type postTempalte struct {
 	SiteName string
 	RssURL   string
-	Post     LongPost
-	Recent   []LongPost
-	All      []LongPost
-	Prev     ShortPost
-	Next     ShortPost
+	Post     longPost
+	Recent   []longPost
+	All      []longPost
+	Prev     shortPost
+	Next     shortPost
 }
 
-type ShortPost struct {
+type shortPost struct {
 	Slug        string
 	Author      string
 	Title       string
@@ -52,26 +51,26 @@ type ShortPost struct {
 	NextSlug    string
 }
 
-type LongPost struct {
-	ShortPost
+type longPost struct {
+	shortPost
 	ReadingTime int
 	Content     template.HTML
 }
 
-func newPostTempalte(p LongPost, i int, recent []LongPost, all []LongPost, config Config) *PostTempalte {
-	pt := &PostTempalte{
-		SiteName: config.SiteName,
+func newPostTemplate(p longPost, i int, recent []longPost, all []longPost, conf *config) *postTempalte {
+	pt := &postTempalte{
+		SiteName: conf.siteName,
 		Post:     p,
 		Recent:   recent,
 		All:      all,
 	}
 
 	if i > 0 {
-		pt.Prev = all[i-1].ShortPost
+		pt.Prev = all[i-1].shortPost
 	}
 
 	if i < len(all)-1 {
-		pt.Next = all[i+1].ShortPost
+		pt.Next = all[i+1].shortPost
 	}
 
 	return pt
@@ -85,19 +84,18 @@ func readFrontMatter(s *bufio.Scanner) (map[string]string, error) {
 		if line == "---" {
 			if flag {
 				return m, nil
-			} else {
-				flag = true
 			}
+			flag = true
 		} else if flag {
 			matter := strings.SplitN(line, ":", 2)
 			if len(matter) != 2 {
 				//Invalid front matter line
-				return nil, ErrInvalidFrontMatter
+				return nil, errInvalidFrontMatter
 			}
 			m[strings.ToLower(matter[0])] = strings.Trim(matter[1], " ") //Trim space
 		} else if line != "" {
 			//Empty front matter
-			return nil, ErrMissingFrontMatter
+			return nil, errMissingFrontMatter
 		}
 	}
 
@@ -105,11 +103,11 @@ func readFrontMatter(s *bufio.Scanner) (map[string]string, error) {
 		return nil, err
 	}
 
-	return nil, ErrEmptyPost
+	return nil, errEmptyPost
 }
 
-func newLongPost(file os.FileInfo, postChan chan<- LongPost) {
-	f, err := os.Open(filepath.Join(PostsDir, file.Name()))
+func newLongPost(file os.FileInfo, postChan chan<- longPost) {
+	f, err := os.Open(filepath.Join(postsDir, file.Name()))
 	if err != nil {
 		return
 	}
@@ -137,7 +135,7 @@ func newLongPost(file os.FileInfo, postChan chan<- LongPost) {
 		tags = getTags(tag)
 	}
 
-	shortPost := ShortPost{
+	shortpost := shortPost{
 		slug,
 		m["author"],
 		m["title"],
@@ -161,13 +159,13 @@ func newLongPost(file os.FileInfo, postChan chan<- LongPost) {
 	}
 	markdown := getMarkdownRender(buf.Bytes())
 
-	longPost := LongPost{
-		shortPost,
+	longpost := longPost{
+		shortpost,
 		getReadingTime(string(markdown)),
 		template.HTML(markdown),
 	}
 
-	postChan <- longPost
+	postChan <- longpost
 }
 
 func getSlug(filename string) (slug string) {

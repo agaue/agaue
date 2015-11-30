@@ -4,20 +4,20 @@ import (
 	"fmt"
 )
 
-func getCollection(allPosts []LongPost) map[string][]LongPost {
-	collection, err := groupBy(allPosts, func(p LongPost) string { return p.Category })
+func getCollection(allPosts []longPost) map[string][]longPost {
+	collection, err := groupBy(allPosts, func(p longPost) string { return p.Category })
 	if err != nil {
-		fmt.Errorf("Error", err)
+		fmt.Println("Error: ", err)
 		return nil
 	}
 	return collection
 }
 
 func groupBy(
-	posts []LongPost,
-	keySelector func(c LongPost) string,
-) (map[string][]LongPost, error) {
-	var results = make(map[string][]LongPost)
+	posts []longPost,
+	keySelector func(c longPost) string,
+) (map[string][]longPost, error) {
+	var results = make(map[string][]longPost)
 	for _, post := range posts {
 		key := keySelector(post)
 		results[key] = append(results[key], post)

@@ -6,35 +6,35 @@ import (
 	"os"
 )
 
-type Config struct {
-	SiteName         string
-	Author           string
-	Description      string
-	Port             int
-	RecentPostsCount int
-	Slogan           string
-	BaseURL          string
-	*Github
+type config struct {
+	siteName         string
+	author           string
+	description      string
+	port             int
+	recentPostsCount int
+	slogan           string
+	baseURL          string
+	*github
 }
 
-type Github struct {
-	Repository string
-	Branch     string
+type github struct {
+	repository string
+	branch     string
 }
 
-func GetConfig(configFile string) Config {
+func getConfig(configFile string) *config {
 	file, err := os.Open(configFile)
 	if err != nil {
-		fmt.Errorf("Error opening the configuration file: %s", err)
+		fmt.Printf("Error opening the configuration file: %s", err)
 	}
 
 	decoder := json.NewDecoder(file)
-	config := &Config{}
+	conf := &config{}
 
-	err = decoder.Decode(&config)
+	err = decoder.Decode(&conf)
 	if err != nil {
-		fmt.Errorf("Error reading the configuration file: %s", err)
+		fmt.Printf("Error reading the configuration file: %s", err)
 	}
 
-	return *config
+	return conf
 }

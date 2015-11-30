@@ -20,12 +20,12 @@ func launchWatcher() *fsnotify.Watcher {
 	}
 	go watch(w)
 	// watch posts directory
-	if err = w.Add(PostsDir); err != nil {
+	if err = w.Add(postsDir); err != nil {
 		w.Close()
 		log.Fatal("FATAL", err)
 	}
 	// watch templates directory
-	if err = w.Add(TemplatesDir); err != nil {
+	if err = w.Add(templatesDir); err != nil {
 		w.Close()
 		log.Fatal("FATAL", err)
 	}
@@ -40,9 +40,9 @@ func watch(w *fsnotify.Watcher) {
 
 		case ev := <-w.Events:
 			ext := filepath.Ext(ev.Name)
-			if strings.HasPrefix(ev.Name, PostsDir) && ext == ".md" {
+			if strings.HasPrefix(ev.Name, postsDir) && ext == ".md" {
 				delay = time.After(eventDelay)
-			} else if strings.HasPrefix(ev.Name, TemplatesDir) && ext == ".html" {
+			} else if strings.HasPrefix(ev.Name, templatesDir) && ext == ".html" {
 				delay = time.After(eventDelay)
 			}
 
@@ -55,7 +55,6 @@ func watch(w *fsnotify.Watcher) {
 			} else {
 				log.Println("site generated")
 			}
-
 		}
 	}
 }

@@ -2,11 +2,18 @@ package lib
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
 func ServeBlog() {
 	defer launchWatcher().Close()
-	fmt.Printf("Agaue is running at http://localhost:%d  Press Ctrl+C to stop.", config.Port)
-	panic(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), http.FileServer(http.Dir(PublicDir))))
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Fatal("FATAL", err)
+	}
+	fmt.Printf("Agaue is running at http://localhost:%d  Press Ctrl+C to stop.", getConfig(filepath.Join(pwd, "config.json")).port)
+	panic(http.ListenAndServe(fmt.Sprintf(":%d", getConfig(filepath.Join(pwd, "config.json")).port), http.FileServer(http.Dir(publicDir))))
 }

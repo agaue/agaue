@@ -22,12 +22,12 @@ var (
 	indexTemplate      *template.Template
 	categoryTemplate   *template.Template
 	collectionTemplate *template.Template
-	config             Config
-	ConfigFile         string
-	PublicDir          string
-	PostsDir           string
-	TemplatesDir       string
-	RssURL             string
+	conf               *config
+	configFile         string
+	publicDir          string
+	postsDir           string
+	templatesDir       string
+	rssURL             string
 
 	specFiles = map[string]struct{}{
 		"favicon.ico":          struct{}{},
@@ -48,27 +48,27 @@ func init() {
 	if err != nil {
 		log.Fatal("FATAL", err)
 	}
-	PublicDir = filepath.Join(pwd, "public")
-	PostsDir = filepath.Join(pwd, "post")
-	TemplatesDir = filepath.Join(pwd, "template")
-	ConfigFile = filepath.Join(pwd, "config.json")
-	config = GetConfig(ConfigFile)
+	publicDir = filepath.Join(pwd, "public")
+	postsDir = filepath.Join(pwd, "post")
+	templatesDir = filepath.Join(pwd, "template")
+	configFile = filepath.Join(pwd, "config.json")
+	conf = getConfig(configFile)
 }
 
 func storeRssURL() {
-	base, err := url.Parse(config.BaseURL)
+	base, err := url.Parse(conf.baseURL)
 	if err != nil {
-		fmt.Errorf("Error parsing the baseurl: %s", err)
+		fmt.Printf("Error parsing the baseurl: %s", err)
 	}
 	rss, err := base.Parse("/rss")
 	if err != nil {
-		fmt.Errorf("Error parsing the rss url: %s", err)
+		fmt.Printf("Error parsing the rss url: %s", err)
 	}
 
-	RssURL = rss.String()
+	rssURL = rss.String()
 }
 
-type posts []LongPost
+type posts []longPost
 
 func (p posts) Len() int           { return len(p) }
 func (p posts) Less(i, j int) bool { return p[i].PublishDate.Before(p[j].PublishDate) }
@@ -87,7 +87,7 @@ func filter(file []os.FileInfo) []os.FileInfo {
 }
 
 func clearPublishDir() error {
-	files, err := ioutil.ReadDir(PublicDir)
+	files, err := ioutil.ReadDir(publicDir)
 	if err != nil {
 		return fmt.Errorf("Error getting public directory files: %s", err)
 	}
@@ -95,7 +95,7 @@ func clearPublishDir() error {
 	for _, file := range files {
 		if !file.IsDir() && !strings.HasPrefix(file.Name(), ".") {
 			if _, ok := specFiles[file.Name()]; !ok {
-				err = os.Remove(filepath.Join(PublicDir, file.Name()))
+				err = os.Remove(filepath.Join(publicDir, file.Name()))
 				if err != nil {
 					return fmt.Errorf("Error deleting file %s: %s", file.Name(), err)
 				}
@@ -106,10 +106,10 @@ func clearPublishDir() error {
 	return nil
 }
 
-func getPosts(files []os.FileInfo) (allPosts []LongPost, recentPosts []LongPost) {
+func getPosts(files []os.FileInfo) (allPosts []longPost, recentPosts []longPost) {
 	fileCount := len(files)
-	allPosts = make([]LongPost, 0)
-	postChan := make(chan LongPost, fileCount)
+	allPosts = make([]longPost, 0)
+	postChan := make(chan longPost, fileCount)
 	for _, file := range files {
 		if runtime.NumGoroutine() > maxGoroutines {
 			newLongPost(file, postChan)
@@ -118,17 +118,13 @@ func getPosts(files []os.FileInfo) (allPosts []LongPost, recentPosts []LongPost)
 		}
 	}
 
-	// for _, file := range files {
-	// 	go newLongPost(file, postChan)
-	// }
-
 	for i := 0; i < fileCount; i++ {
 		allPosts = append(allPosts, <-postChan)
 	}
 
 	sort.Sort(sort.Reverse(posts(allPosts)))
 
-	for i, _ := range allPosts {
+	for i := range allPosts {
 		if i > 0 {
 			allPosts[i].PrevSlug = allPosts[i-1].Slug
 		}
@@ -136,7 +132,7 @@ func getPosts(files []os.FileInfo) (allPosts []LongPost, recentPosts []LongPost)
 			allPosts[i].NextSlug = allPosts[i+1].Slug
 		}
 	}
-	recent := config.RecentPostsCount
+	recent := conf.recentPostsCount
 	if fileCount < recent {
 		recent = fileCount
 	}
@@ -144,10 +140,10 @@ func getPosts(files []os.FileInfo) (allPosts []LongPost, recentPosts []LongPost)
 	return
 }
 
-// func getPosts(files []os.FileInfo) (allPosts []*LongPost, recentPosts []*LongPost) {
-// 	allPosts = make([]*LongPost, 0, len(files))
+// func getPosts(files []os.FileInfo) (allPosts []*longPost, recentPosts []*longPost) {
+// 	allPosts = make([]*longPost, 0, len(files))
 // 	for _, file := range files {
-// 		longPost, err := newLongPost(file)
+// 		longPost, err := newlongPost(file)
 // 		if err != nil {
 // 			log.Printf("Post ignored: %s; Error: %s\n", file.Name(), err)
 // 		} else {
@@ -185,7 +181,7 @@ func loadTemplates() {
 func GenerateSite() error {
 	storeRssURL()
 	loadTemplates()
-	files, err := ioutil.ReadDir(PostsDir)
+	files, err := ioutil.ReadDir(postsDir)
 	if err != nil {
 		return err
 	}
@@ -200,15 +196,15 @@ func GenerateSite() error {
 	}
 
 	for i, p := range allPosts {
-		pt := newPostTempalte(p, i, recentPosts, allPosts, config)
+		pt := newPostTemplate(p, i, recentPosts, allPosts, conf)
 		if i == 0 {
 			if err := generateIndexFile(pt); err != nil {
-				fmt.Errorf("Generate index file error: %s", err)
+				fmt.Printf("Generate index file error: %s", err)
 				return err
 			}
 		}
 		if err := generatePostFile(pt); err != nil {
-			fmt.Errorf("Generate post file error: %s", err)
+			fmt.Printf("Generate post file error: %s", err)
 			return err
 		}
 		fmt.Println(i)
@@ -216,30 +212,30 @@ func GenerateSite() error {
 
 	err = generateCategoryFile(collections)
 	if err != nil {
-		fmt.Errorf("Generate category file error: %s", err)
+		fmt.Printf("Generate category file error: %s", err)
 		return err
 	}
 
-	for key, _ := range collections {
+	for key := range collections {
 		if err := generateCollectionFile(key, collections[key]); err != nil {
-			fmt.Errorf("Generate collection file error: %s", err)
+			fmt.Printf("Generate collection file error: %s", err)
 			return err
 		}
 	}
 
-	pt := newPostTempalte(LongPost{}, 0, recentPosts, allPosts, config)
+	pt := newPostTemplate(longPost{}, 0, recentPosts, allPosts, conf)
 
-	err = generateJson(pt)
+	err = generateJSON(pt)
 	if err != nil {
-		fmt.Errorf("Generate json file error: %s", err)
+		fmt.Printf("Generate json file error: %s", err)
 		return err
 	}
 	return generateRss(pt)
 }
 
-func generateRss(pt *PostTempalte) error {
-	rss := NewRss(config.SiteName, config.Slogan, config.BaseURL, config.Author)
-	base, err := url.Parse(config.BaseURL)
+func generateRss(pt *postTempalte) error {
+	rss := newRss(conf.siteName, conf.slogan, conf.baseURL, conf.author)
+	base, err := url.Parse(conf.baseURL)
 	if err != nil {
 		return fmt.Errorf("Error parsing base URL: %s", err)
 	}
@@ -249,15 +245,15 @@ func generateRss(pt *PostTempalte) error {
 		if err != nil {
 			return fmt.Errorf("Error parsing post URL: %s", err)
 		}
-		rss.Channels[0].AppendItem(NewRssItem(p.Title, p.Description, u.String(), p.Author, "", p.PublishDate.Format("2006-01-02")))
+		rss.Channels[0].appendItem(newRssItem(p.Title, p.Description, u.String(), p.Author, "", p.PublishDate.Format("2006-01-02")))
 	}
 
-	return rss.WriteToFile(filepath.Join(PublicDir, "rss.xml"))
+	return rss.writeToFile(filepath.Join(publicDir, "rss.xml"))
 }
 
-func generateJson(pt *PostTempalte) error {
-	siteJson := NewSiteJson(config.SiteName)
-	base, err := url.Parse(config.BaseURL)
+func generateJSON(pt *postTempalte) error {
+	siteJSON := newSiteJSON(conf.siteName)
+	base, err := url.Parse(conf.baseURL)
 	if err != nil {
 		return fmt.Errorf("Error parsing base URL: %s", err)
 	}
@@ -275,14 +271,14 @@ func generateJson(pt *PostTempalte) error {
 		if err != nil {
 			return fmt.Errorf("Error parsing post URL: %s", err)
 		}
-		siteJson.AppendPostJson(NewPostJson(slug.String(), p.Author, p.Title, p.Description, p.Category, p.PublishDate.Format("2006-01-02"), p.ModifyDate.Format("2006-01-02"), p.ReadingTime, prevSlug.String(), nextSlug.String(), string(p.Content)))
+		siteJSON.appendPostJSON(newPostJSON(slug.String(), p.Author, p.Title, p.Description, p.Category, p.PublishDate.Format("2006-01-02"), p.ModifyDate.Format("2006-01-02"), p.ReadingTime, prevSlug.String(), nextSlug.String(), string(p.Content)))
 	}
-	return siteJson.WriteToFile(filepath.Join(PublicDir, "site.json"))
+	return siteJSON.writeToFile(filepath.Join(publicDir, "site.json"))
 }
 
-func generatePostFile(pt *PostTempalte) error {
+func generatePostFile(pt *postTempalte) error {
 
-	fileWriter, err := os.Create(filepath.Join(PublicDir, pt.Post.Slug))
+	fileWriter, err := os.Create(filepath.Join(publicDir, pt.Post.Slug))
 	if err != nil {
 		return fmt.Errorf("Error creating static file %s: %s", pt.Post.Slug, err)
 	}
@@ -291,9 +287,9 @@ func generatePostFile(pt *PostTempalte) error {
 	return postTemplate.ExecuteTemplate(fileWriter, "base", pt)
 }
 
-func generateIndexFile(pt *PostTempalte) error {
+func generateIndexFile(pt *postTempalte) error {
 
-	indexWriter, err := os.Create(filepath.Join(PublicDir, "index.html"))
+	indexWriter, err := os.Create(filepath.Join(publicDir, "index.html"))
 	if err != nil {
 		return fmt.Errorf("Error creating static file index.html: %s", err)
 	}
@@ -302,8 +298,8 @@ func generateIndexFile(pt *PostTempalte) error {
 	return indexTemplate.ExecuteTemplate(indexWriter, "index", pt)
 }
 
-func generateCategoryFile(c map[string][]LongPost) error {
-	categoryWriter, err := os.Create(filepath.Join(PublicDir, "category.html")) //TODO: every category generate a html
+func generateCategoryFile(c map[string][]longPost) error {
+	categoryWriter, err := os.Create(filepath.Join(publicDir, "category.html")) //TODO: every category generate a html
 	if err != nil {
 		return fmt.Errorf("Error creating static file category.html: %s", err)
 	}
@@ -312,8 +308,8 @@ func generateCategoryFile(c map[string][]LongPost) error {
 	return categoryTemplate.ExecuteTemplate(categoryWriter, "category", c)
 }
 
-func generateCollectionFile(c string, posts []LongPost) error { //TODO: init reposity first
-	collectionWriter, err := os.Create(filepath.Join(PublicDir, "collection", c+".html"))
+func generateCollectionFile(c string, posts []longPost) error { //TODO: init reposity first
+	collectionWriter, err := os.Create(filepath.Join(publicDir, "collection", c+".html"))
 	if err != nil {
 		return fmt.Errorf("Error creating static file in collection %s html: %s", c, err)
 	}

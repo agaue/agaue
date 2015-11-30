@@ -6,73 +6,73 @@ import (
 	"time"
 )
 
-type Rss struct {
+type rss struct {
 	XMLName  xml.Name   `xml:"rss"`
 	Version  string     `xml:"version,attr"`
-	Channels []*Channel `xml:"channel"`
+	Channels []*channel `xml:"channel"`
 }
 
-type Channel struct {
+type channel struct {
 	Title         string   `xml:"title"`
 	Description   string   `xml:"description"`
 	Link          string   `xml:"link"`
 	LastBuildDate string   `xml:"lastBuildDate"`
 	Generator     string   `xml:"generator"`
-	Image         []*Image `xml:"image"`
-	Item          []*Item  `xml:"item"`
+	Image         []*image `xml:"image"`
+	Item          []*item  `xml:"item"`
 }
 
-type Image struct {
-	Url   string `xml:"url"`
+type image struct {
+	URL   string `xml:"url"`
 	Title string `xml:"title"`
 	Link  string `xml:"link"`
 }
 
-type Item struct {
+type item struct {
 	Title       string   `xml:"title"`
 	Link        string   `xml:"link"`
 	Description string   `xml:"description"`
 	Author      string   `xml:"author"`
 	Category    string   `xml:"category"`
 	PublishDate string   `xml:"publishDate"`
-	Image       []*Image `xml:"image"`
+	Image       []*image `xml:"image"`
 }
 
-func NewRss(title string, description string, link string, author string) *Rss {
-	rss := &Rss{
+func newRss(title string, description string, link string, author string) *rss {
+	r := &rss{
 		Version: "2.0",
-		Channels: []*Channel{
-			&Channel{
+		Channels: []*channel{
+			&channel{
 				Title:       title,
 				Description: description,
 				Link:        link,
 				Generator:   author,
-				Image:       make([]*Image, 0),
-				Item:        make([]*Item, 0),
+				Image:       make([]*image, 0),
+				Item:        make([]*item, 0),
 			},
 		},
 	}
 
-	return rss
+	return r
 }
 
-func NewRssItem(title string, description string, link string, author string, category string, publishDate string) *Item {
-	return &Item{
+func newRssItem(title string, description string, link string, author string, category string, publishDate string) *item {
+	return &item{
 		Title:       title,
 		Link:        link,
 		Description: description,
 		Author:      author,
 		Category:    category,
 		PublishDate: publishDate,
-		Image:       make([]*Image, 0),
+		Image:       make([]*image, 0),
 	}
 }
 
-func (ch *Channel) AppendItem(i *Item) {
+func (ch *channel) appendItem(i *item) {
 	ch.Item = append(ch.Item, i)
 }
 
-func (rss *Rss) WriteToFile(path string) error {
+func (rss *rss) writeToFile(path string) error {
 	rss.Channels[0].LastBuildDate = time.Now().Format(time.RFC822)
 	file, err := os.Create(path)
 	if err != nil {

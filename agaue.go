@@ -13,22 +13,9 @@ func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	app := cli.NewApp()
 	app.Name = "agaue"
-	app.Usage = "make a test"
-	app.Version = "0.0.2"
-	// app.Flags = []cli.Flag{
-	// 	cli.StringFlag{"lang, l", "english", "language for the greeting"},
-	// }
-	// app.Action = func(c *cli.Context) {
-	// 	name := "someone"
-	// 	if len(c.Args()) > 0 {
-	// 		name = c.Args()[0]
-	// 	}
-	// 	if c.String("lang") == "spanish" {
-	// 		println("Hola", name)
-	// 	} else {
-	// 		println("Hello", name)
-	// 	}
-	// }
+	app.Usage = "Agaue -- static blog engine"
+	app.Version = "0.0.3"
+
 	app.Commands = []cli.Command{
 		{
 			Name:      "init",

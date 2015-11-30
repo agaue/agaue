@@ -5,12 +5,12 @@ import (
 	"os"
 )
 
-type Site struct {
+type site struct {
 	SiteName string      `json:"siteName"`
-	Posts    []*PostJson `json:"posts"`
+	Posts    []*postJSON `json:"posts"`
 }
 
-type PostJson struct {
+type postJSON struct {
 	Slug        string `json:"slug"`
 	Author      string `json:"author"`
 	Title       string `json:"title"`
@@ -24,15 +24,15 @@ type PostJson struct {
 	Content     string `json:"content"`
 }
 
-func NewSiteJson(siteName string) *Site {
-	site := &Site{
+func newSiteJSON(siteName string) *site {
+	s := &site{
 		SiteName: siteName,
-		Posts:    make([]*PostJson, 0),
+		Posts:    make([]*postJSON, 0),
 	}
-	return site
+	return s
 }
 
-func NewPostJson(
+func newPostJSON(
 	slug string,
 	author string,
 	title string,
@@ -43,8 +43,8 @@ func NewPostJson(
 	readingTime int,
 	prevSlug string,
 	nextSlug string,
-	content string) *PostJson {
-	return &PostJson{
+	content string) *postJSON {
+	return &postJSON{
 		Slug:        slug,
 		Author:      author,
 		Title:       title,
@@ -59,16 +59,16 @@ func NewPostJson(
 	}
 }
 
-func (site *Site) AppendPostJson(p *PostJson) {
-	site.Posts = append(site.Posts, p)
+func (s *site) appendPostJSON(p *postJSON) {
+	s.Posts = append(s.Posts, p)
 }
 
-func (site *Site) WriteToFile(path string) error {
+func (s *site) writeToFile(path string) error {
 	file, err := os.Create(path)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 	encoding := json.NewEncoder(file)
-	return encoding.Encode(site)
+	return encoding.Encode(s)
 }
