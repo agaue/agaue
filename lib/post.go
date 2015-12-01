@@ -4,13 +4,14 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/russross/blackfriday"
 	"html/template"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
+	
+	"github.com/russross/blackfriday"
 )
 
 var (
